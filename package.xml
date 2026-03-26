@@ -1,20 +1,23 @@
-<package>
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>eigen_checks</name>
   <version>0.0.1</version>
   <description>Glog and Gtest check, assert, expect macros for eigen types.</description>
   <maintainer email="simon.lynen@mavt.ethz.ch">simonlynen</maintainer>
-
-  <license>New BSD</license>
+  <license>BSD-3-Clause</license>
 
   <url type="website">https://github.com/ethz-asl/eigen_checks</url>
   <url type="bugtracker">https://github.com/ethz-asl/eigen_checks/issues</url>
-
   <author>Simon Lynen</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <buildtool_depend>catkin_simple</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>eigen_catkin</build_depend>
-  <build_depend>gflags_catkin</build_depend>
-  <build_depend>glog_catkin</build_depend>
+  <depend>eigen</depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

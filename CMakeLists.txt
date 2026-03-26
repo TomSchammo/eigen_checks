@@ -22,58 +22,53 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required(VERSION 2.8.3)
+
+cmake_minimum_required(VERSION 3.5)
 project(eigen_checks)
 
-find_package(catkin_simple REQUIRED)
-catkin_simple()
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(--std=c++0x -Wall -Wextra -pedantic)
+find_package(ament_cmake REQUIRED)
+find_package(Eigen3 REQUIRED)
 
-cs_add_library(${PROJECT_NAME} src/eigen-checks.cc)
+# Header-only library
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  ${EIGEN3_INCLUDE_DIR}
+)
 
-find_package (Threads)
-catkin_add_gtest(test_gtest_near
-	test/test_gtest-near.cc)
-target_link_libraries(test_gtest_near ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+# Install headers
+install(DIRECTORY include/
+  DESTINATION include
+)
 
-catkin_add_gtest(test_gtest_equal
-  test/test_gtest-equal.cc)
-target_link_libraries(test_gtest_equal ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+# Export
+ament_export_include_directories(include)
+ament_export_targets(${PROJECT_NAME}Targets HAS_LIBRARY_TARGET)
 
-catkin_add_gtest(test_gtest_zero
-  test/test_gtest-zero.cc)
-target_link_libraries(test_gtest_zero ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}Targets
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
 
-catkin_add_gtest(test_gtest_equal_double
-  test/test_gtest-equal-double.cc)
-target_link_libraries(test_gtest_equal_double ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+# Tests
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
 
-catkin_add_gtest(test_glog_near
-  test/test_glog-near.cc)
-target_link_libraries(test_glog_near ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+  ament_add_gtest(test_gtest_near test/test_gtest-near.cc)
+  target_link_libraries(test_gtest_near ${PROJECT_NAME} glog gflags)
 
-catkin_add_gtest(test_glog_equal
-  test/test_glog-equal.cc)
-target_link_libraries(test_glog_equal ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+  ament_add_gtest(test_gtest_equal test/test_gtest-equal.cc)
+  target_link_libraries(test_gtest_equal ${PROJECT_NAME} glog gflags)
 
-catkin_add_gtest(test_glog_zero
-  test/test_glog-zero.cc)
-target_link_libraries(test_glog_zero ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+  ament_add_gtest(test_gtest_zero test/test_gtest-zero.cc)
+  target_link_libraries(test_gtest_zero ${PROJECT_NAME} glog gflags)
+endif()
 
-catkin_add_gtest(test_glog_equal_double
-  test/test_glog-equal-double.cc)
-target_link_libraries(test_glog_equal_double ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
-
-catkin_add_gtest(test_glog-zero-sized-types
-  test/test_glog-zero-sized-types.cc)
-target_link_libraries(test_glog-zero-sized-types ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
-
-catkin_add_gtest(test_gtest-zero-sized-types
-  test/test_gtest-zero-sized-types.cc)
-target_link_libraries(test_gtest-zero-sized-types ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
-
-cs_install()
-
-cs_export(INCLUDE_DIRS include
-          CFG_EXTRAS eigen_checks-extras.cmake)
+ament_package()
